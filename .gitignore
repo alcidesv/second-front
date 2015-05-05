@@ -1,0 +1,6 @@
+/dist
+/.cabal-sandbox*
+.*.swp
+*.pyc
+*.sublime-workspace
+cabal.sandbox.config
