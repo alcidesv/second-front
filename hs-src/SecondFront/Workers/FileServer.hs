@@ -7,6 +7,7 @@ module SecondFront.Workers.FileServer(
     fileServer,
 
     FileServerConfig(..),
+    HidePattern(..),
 
     defaultFileServerConfig,
 
@@ -18,57 +19,80 @@ module SecondFront.Workers.FileServer(
 
 import           Control.Lens
 import qualified Control.Lens             as L
+
 import qualified Data.ByteString          as B
 import           Data.ByteString.Char8    (pack, unpack)
-import           Data.List                (isInfixOf, isSuffixOf)
+import           Data.List                (isInfixOf, isSuffixOf, isPrefixOf)
 import           Data.Conduit             (yield)
 import           Data.Foldable            (find)
+
 import           System.Directory         (doesFileExist)
 import           System.FilePath
+import           System.Log.Logger
+
 import qualified Network.URI              as U
 
 
 import           SecondFront.Workers.Data
 import           SecondTransfer           (CoherentWorker, PrincipalStream)
 
+-- | File patterns to hide. This can be improved a lot, but for
+--   now let's have simple patterns
+data HidePattern = 
+     Prefix_HP FilePath 
+    |Suffix_HP FilePath 
+
+
 
 -- | Config information for the file server. Notice that all members of this 
 --   struct have associated lenses, prefer to use those
 data FileServerConfig = FileServerConfig  {
-    -- ^ The path which will be prefixed to paths present in the URL
-    _basePath_FSC             :: FilePath  
-    -- ^ A list of file extensions (including the '.') and of 
+    -- | The path which will be prefixed to paths present in the URL
+    _basePath_FSC             :: FilePath,
+    -- | A list of file extensions (including the '.') and of 
     --   mime-types
-    ,_suffixToMimeTypes_FSC   :: [(B.ByteString, B.ByteString)]
-    -- ^ A list of files to search for when the path looks like a directory, 
+    _suffixToMimeTypes_FSC   :: [(B.ByteString, B.ByteString)],
+    -- | A list of files to search for when the path looks like a directory, 
     --   i.e. it ends in '/' or is at the very top of the domain.
-    ,_validIndexFileNames_FSC :: [FilePath]
+    _validIndexFileNames_FSC :: [FilePath],
+    -- | A list of file patterns to hide. 
+    _hidePatterns :: [HidePattern]
   }
+
 
 L.makeLenses ''FileServerConfig
 
-
+-- | Default file server config. It serves files from the current directory,
+--  serves index.html and hides something starting with "_priv/"
 defaultFileServerConfig :: FileServerConfig
 defaultFileServerConfig = FileServerConfig {
     _basePath_FSC = "."
     ,_suffixToMimeTypes_FSC = defaultSuffixToMimeTypes
     ,_validIndexFileNames_FSC = ["index.html"]
+    ,_hidePatterns = [
+        Prefix_HP "_priv/"
+      ]
   }
 
 
+-- | Very simple and probably insecure file server. In order to harden it a bit, 
+--   we ignore relative paths that contain '..' and '%' signs, but the result can 
+--   still be unsafe :-(
 fileServer :: FileServerConfig -> CoherentWorker
 fileServer config (headers, _) = do 
     let 
         base_path = config ^. basePath_FSC
         mime_types = config ^. suffixToMimeTypes_FSC
         valid_index_file_names = config ^. validIndexFileNames_FSC
+        hide_patterns = config ^. hidePatterns
         maybe_usable_uri = do 
             path <- lookup ":path" headers
-            U.parseAbsoluteURI . unpack $ path
+            U.parseRelativeReference . unpack $ path
     case maybe_usable_uri of 
         Nothing     ->  do 
             -- Indeed this circumstance should be captured by second-transfer, that is,
             -- where there no :path pseudo-header is present
+            errorM "2ndF" $ "Couln't find path between pseudo-headers" 
             send501
 
         Just (U.URI {U.uriPath=some_path}) -> do
@@ -83,7 +107,7 @@ fileServer config (headers, _) = do
                     putStrLn $ "Got relUri= " ++ some_path
 
                     -- Very basic security
-                    if  (".." `isInfixOf` some_path ) || ("%" `isInfixOf` some_path) then 
+                    if  (".." `isInfixOf` some_path ) || ("%" `isInfixOf` some_path) || (mostHide hide_patterns some_path) then 
                         send404
                     else do
                         let 
@@ -169,6 +193,16 @@ send501 =  return (
             return []
         )
     )
+
+
+mostHide :: [HidePattern] -> FilePath -> Bool 
+mostHide hide_patterns rel_path = 
+    foldl (\ a h -> a || (rel_path `hideMatches` h) ) False hide_patterns
+
+
+hideMatches :: FilePath -> HidePattern -> Bool 
+hideMatches rel_path (Prefix_HP p) = p `isPrefixOf` rel_path
+hideMatches rel_path (Suffix_HP p) = p `isSuffixOf` rel_path
 
 -- TODO: We need to load this list from somewhere else
 defaultSuffixToMimeTypes :: [ (B.ByteString, B.ByteString) ]

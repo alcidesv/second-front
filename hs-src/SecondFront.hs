@@ -4,9 +4,7 @@ module SecondFront(
     proxyServe,
 
     -- * Top-level configuration
-    OutsideConfig,
-    InsideConfig,
-    TranslationConfig
+    module SecondFront.Config.Types
     ) where 
 
 

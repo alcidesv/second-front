@@ -13,7 +13,7 @@ bad404ResponseData :: B.ByteString
 bad404ResponseData = "404: SecondFront: Didn't find that"
 
 bad501ResponseData :: B.ByteString
-bad501ResponseData = "505: You are seeing this instead of some non-implemented, more specific slap"
+bad501ResponseData = "501: You are seeing this instead of some non-implemented, more specific slap"
 
 
 -- TODO: It could be a really bad idea to give the server indication always....

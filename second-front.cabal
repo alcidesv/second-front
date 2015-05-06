@@ -51,12 +51,16 @@ library
   exposed-modules: SecondFront, 
                    SecondFront.Workers,
                    SecondFront.Workers.FileServer,
-                   SecondFront.Workers.W404
+                   SecondFront.Workers.W404,
+                   SecondFront.Config,
+                   SecondFront.Logging
+
   
   -- Modules included in this library but not exported.
-  other-modules:   SecondFront.Config.Types,
-                   SecondFront.VirtualHosts.Route,
-                   SecondFront.Workers.Data
+  other-modules:   SecondFront.VirtualHosts.Route,
+                   SecondFront.Workers.Data,
+                   SecondFront.Config.Types,
+                   SecondFront.Config.Defaults
   
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:    
@@ -70,8 +74,9 @@ library
                        conduit >= 1.2.4 && < 1.3,
                        directory >= 1.2,
                        filepath >= 1.3,
-                       network-uri >= 2.6
-
+                       network-uri >= 2.6,
+                       hslogger >= 1.2.6,
+                       unix >= 2.7
   
   -- Directories containing source files.
   hs-source-dirs:      hs-src
@@ -79,3 +84,20 @@ library
   -- Base language which the package is written in.
   default-language:    Haskell2010
   
+executable second-front-fs
+  hs-source-dirs:     second-front-src
+  main-is:            Main.hs 
+  build-depends:       base >=4.7 && <4.8,
+                       bytestring == 0.10.4.0,
+                       second-transfer >= 0.3,
+                       lens >= 4.7 && < 4.8,
+                       hslogger >= 1.2.6,
+                       conduit >= 1.2.4 && < 1.3,
+                       directory >= 1.2,
+                       filepath >= 1.3,
+                       network-uri >= 2.6,
+                       second-front
+
+  default-language:    Haskell2010
+
+  ghc-options: -threaded -O2 -rtsopts "-with-rtsopts=-N -p -s -h -i0.1"
