@@ -6,8 +6,8 @@ module SecondFront.VirtualHosts.Route where
 import System.Log.Logger
 import Control.Lens
 import Control.Concurrent.MVar
-import Control.Exception as E
-import Control.Concurrent
+-- import Control.Exception as E
+-- import Control.Concurrent
 
 import Data.Foldable   (find)
 import Data.ByteString.Char8 (unpack)
@@ -38,7 +38,6 @@ proxyServe outside_config inside_config translation_config = do
     finish_request <- case maybe_finish_request_a of 
         Nothing -> do 
             x <- newEmptyMVar 
-            tid <- myThreadId
             installHandler keyboardSignal (Catch (do 
                 putMVar x FinishRequest
                 )) Nothing
@@ -76,4 +75,3 @@ route vh_list req@(headers, _) = let
   in do 
     infoM "2ndF" $ "Authority: " ++ (unpack requested_host)
     use_coherent_worker req
-
