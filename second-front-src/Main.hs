@@ -11,4 +11,7 @@ import SecondTransfer (enableConsoleLogging)
 main = do 
     L.enableConsoleLogging
     enableConsoleLogging
-    proxyServe defaultOutsideConfig defaultInsideConfig defaultTranslationConfig
+    proxyServe 
+    	defaultOutsideConfig 
+    	defaultInsideConfig 
+    	defaultTranslationConfig
