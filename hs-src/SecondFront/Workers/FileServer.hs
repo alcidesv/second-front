@@ -103,8 +103,7 @@ fileServer config (headers, _) = do
                     -- RFC 7231 makes methods case-sensitive, so any variation of this is an anomaly 
                     -- and should be rejected
 
-                    -- TODO: logging
-                    putStrLn $ "Got relUri= " ++ some_path
+                    infoM "2ndF" $ "Requested relUri = " ++ some_path
 
                     -- Very basic security
                     if  (".." `isInfixOf` some_path ) || ("%" `isInfixOf` some_path) || (mostHide hide_patterns some_path) then 
@@ -118,6 +117,8 @@ fileServer config (headers, _) = do
                                 _         -> some_path
                             full_path = base_path </> relativized_path
                             mime_type = getRelPathMime mime_types relativized_path
+
+                        infoM "2ndF" $ "  full path = " ++ full_path
 
                         maybe_contents <- fetchFile full_path
 
@@ -138,7 +139,7 @@ fileServer config (headers, _) = do
 
                             -- Let's do a search with alternative names
                             Nothing ->  do 
-                                check <- pathGoesToIndex valid_index_file_names full_path relativized_path
+                                check <- pathGoesToIndex valid_index_file_names full_path
                                 case check of 
                                     Just index_fname -> do
                                         Just contents2 <- fetchFile index_fname
@@ -224,27 +225,24 @@ getRelPathMime suffix_to_mime_list rel_path = case maybe_mime of
     rel_path_bs = pack rel_path
 
 
-pathGoesToIndex :: [FilePath] -> String -> String -> IO (Maybe String)
-pathGoesToIndex valid_index_names abs_path relpath = let 
-    perhaps = "/" `isSuffixOf` abs_path || relpath == ""
+pathGoesToIndex :: [FilePath] -> String -> IO (Maybe String)
+pathGoesToIndex valid_index_names abs_path = let 
+    ends_with_slash = "/" `isSuffixOf` abs_path 
     if_exists [] = return Nothing
     if_exists (valid_index_filename:vins) = let 
-        index_fname = if relpath == "" then
+        index_fname = if ends_with_slash then
             abs_path ++ valid_index_filename
           else 
-            abs_path ++ valid_index_filename
+            abs_path ++ "/" ++ valid_index_filename
       in do 
         b <- doesFileExist index_fname  
         if b then 
             return $ Just index_fname
           else 
             if_exists vins
-
   in 
-    if perhaps then 
-        if_exists valid_index_names   
-      else 
-        return Nothing
+    if_exists valid_index_names   
+
 
 
 send404 :: IO PrincipalStream
