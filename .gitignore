@@ -4,3 +4,4 @@
 *.pyc
 *.sublime-workspace
 cabal.sandbox.config
+.idea/*
