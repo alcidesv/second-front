@@ -14,7 +14,7 @@ import SecondFront.Workers.FileServer
 --  the `defaultServerCredentials`
 defaultOutsideConfig :: OutsideConfig
 defaultOutsideConfig = OutsideConfig {
-    _serverEndpoint_OC = LocalInterface_OE ("127.0.0.1", 8080),
+    _serverEndpoint_OC = LocalInterface_OE ("127.0.0.1", 4043),
     _serverCredentials_OC = defaultServerCredentials
   }
 

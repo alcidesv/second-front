@@ -5,3 +5,4 @@
 *.sublime-workspace
 cabal.sandbox.config
 .idea/*
+_priv/site*.pem

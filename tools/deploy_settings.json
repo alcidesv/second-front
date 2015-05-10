@@ -1,0 +1,13 @@
+{
+    "host": {
+        "normal": "www@45.55.235.246",
+        "root": "root@45.55.235.246"
+    },
+
+    "user": "www",
+
+    "certificate": {
+        "cert": "_priv/site_cert.pem",
+        "key": "_priv/site_privkey.pem"
+    }
+}
