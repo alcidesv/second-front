@@ -1,14 +1,12 @@
 # Site settings
-title: Your awesome title
-email: your-email@domain.com
+title: HTTP Two
+email: alcidesv@zunzun.se
 description: > # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+    HTTP TWO is a website to track the development of a server HTTP/2 library called Second Transfer.
 baseurl: "" # the subpath of your site, e.g. /blog/
-url: "http://yourdomain.com" # the base hostname & protocol for your site
-twitter_username: jekyllrb
-github_username:  jekyll
+url: "https://www.httptwo.com" # the base hostname & protocol for your site
+twitter_username: aviamontes
+github_username:  alcidesv
 
 # Build settings
 markdown: kramdown

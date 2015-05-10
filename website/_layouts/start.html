@@ -1,0 +1,31 @@
+---
+layout: default
+---
+<div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">HTTP TWO</h1>
+  </header>
+
+  <div class="columns-container">
+    <div class="list-of-posts">
+      <div class="list-inner">
+          {% for post in site.posts %}    
+            <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
+            <p><small><strong>{{ post.date | date: "%B %e, %Y" }}</strong> 
+              {% if post.categories %} 
+                ({% for category in post.categories %}{{category}}{% if forloop.last %}{% else %}, {%endif%}{% endfor %})
+              {% endif %}
+              </small></p>
+          {% endfor %}    
+      </div>
+    </div>
+
+    <div class="right-explanation">
+        <article class="post-content">
+          {{ content }}
+        </article>
+    </div>
+  </div>
+
+</div>
