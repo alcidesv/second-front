@@ -153,6 +153,12 @@ def put_server_binary():
     )
     run("service supervisord start")
 
+@hosts(root)
+def restart_server():
+    with settings(warn_only=True):
+        run("service supervisord stop")
+    run("service supervisord start")    
+
 @hosts(normal)
 def put_certificate():
     put(deploy_settings["certificate"]["cert"], "/home/{user}/_priv/".format(user=user))
