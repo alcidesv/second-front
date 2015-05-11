@@ -295,6 +295,9 @@
     flex-grow: 0.4;
     width: 40%;
 
+    & .inner-box {
+        @include box-of-letters();
+    }
 
     @include media-query($on-laptop) {
         width: 100%;

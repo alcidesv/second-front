@@ -2,7 +2,7 @@
 title: HTTP Two
 email: alcidesv@zunzun.se
 description: > # this means to ignore newlines until "baseurl:"
-    HTTP TWO is a website to track the development of a server HTTP/2 library called Second Transfer.
+    HTTP TWO is a website for tracking the development of a server HTTP/2 library called Second Transfer.
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "https://www.httptwo.com" # the base hostname & protocol for your site
 twitter_username: aviamontes
