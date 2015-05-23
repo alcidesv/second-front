@@ -34,7 +34,8 @@ import qualified Network.URI              as U
 
 
 import           SecondFront.Workers.Data
-import           SecondTransfer           (CoherentWorker, PrincipalStream)
+import           SecondTransfer           (CoherentWorker, PrincipalStream, Headers)
+import qualified SecondTransfer.Utils.HTTPHeaders as H
 
 -- | File patterns to hide. This can be improved a lot, but for
 --   now let's have simple patterns
@@ -127,8 +128,11 @@ fileServer config (headers, _) = do
                             Just contents -> do
 
                                 -- Seems I can deliver something.... 
+                                let 
+                                    good_headers = good200ResponseHeaders mime_type (B.length contents)
+                                timestamped_headers <- timestampHeaders good_headers
                                 return (
-                                    good200ResponseHeaders mime_type (B.length contents),
+                                    timestamped_headers,
                                     [],
                                     ( do 
                                         yield contents
@@ -146,8 +150,11 @@ fileServer config (headers, _) = do
                                         -- When sending default contents, classify it as text/html, no 
                                         -- matter the actual extension of files in the filesystem....
                                         -- otherwise it doesn't make sense.
+                                        let 
+                                            good_headers = good200ResponseHeaders "text/html" (B.length contents2)
+                                        timestamped_headers <- timestampHeaders good_headers
                                         return (
-                                            good200ResponseHeaders "text/html" (B.length contents2),
+                                            timestamped_headers,
                                             [],
                                             ( do 
                                                 yield contents2
@@ -214,6 +221,9 @@ defaultSuffixToMimeTypes = [
     ,(".svg", "image/svg+xml")
     ,(".json", "application/json")
     ,(".txt", "text/plain")
+    ,(".png", "image/png")
+    ,(".jpg", "image/jpeg")
+    ,(".gif", "image/gif")
     ]
 
 getRelPathMime :: [ (B.ByteString, B.ByteString) ] -> String -> B.ByteString
@@ -254,3 +264,11 @@ send404 = return (
         return []
     )
   )
+
+
+timestampHeaders :: Headers -> IO Headers 
+timestampHeaders headers = do
+    let 
+        editor = H.fromList headers 
+    new_editor <- H.introduceDateHeader editor 
+    return $ H.toList new_editor

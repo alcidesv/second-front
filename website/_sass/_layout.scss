@@ -107,7 +107,6 @@
 }
 
 
-
 /**
  * Site footer
  */
@@ -279,6 +278,10 @@
         @include media-query($on-laptop) {
             font-size: 18px;
         }
+    }
+
+    img {
+        width: 100%;
     }
 }
 

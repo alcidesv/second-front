@@ -38,7 +38,10 @@ insideConfig =
         virtualHosts_IC     -- What to set
         [
             VirtualHost
-                "www.httptwo.com"
+                -- Use this when serving proxied
+                -- "www.httptwo.com"
+                -- Use this when serving un-proxied and in the local host
+                "www.httpdos.com:4043"
                 (fileServer
                     (set
                         basePath_FSC
