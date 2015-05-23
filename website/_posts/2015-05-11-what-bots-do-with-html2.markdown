@@ -34,3 +34,5 @@ to argue this point using my Twitter handle! --
 So, for the moment at least you may want to play it safe and
 have an HTTP/1.1 version of your website available. 
 Not that I'm following that advice right now ;-). 
+
+UPDATE May 23th 2015: The bot doesn't support ALPN either.
